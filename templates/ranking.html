@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4 fw-bold">🏆 Market Ranking Leaderboard</h2>
+
+<div class="card-modern ranking-card">
+
+    <div id="rankingLoader" class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-3 text-muted">Calculating market performance...</p>
+    </div>
+
+    <table class="table ranking-table" id="rankingTable" style="display:none;">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Sector</th>
+                <th>CAGR (%)</th>
+                <th>Trend</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+</div>
+
+<style>
+
+/* Card style */
+.ranking-card {
+    overflow: hidden;
+}
+
+/* Table styling */
+.ranking-table {
+    margin-bottom: 0;
+}
+
+.ranking-table thead {
+    background: linear-gradient(135deg,#6366f1,#8b5cf6);
+    color: white;
+}
+
+.ranking-table th {
+    border: none;
+    padding: 16px;
+}
+
+.ranking-table td {
+    padding: 18px;
+    vertical-align: middle;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+/* Row animation */
+.ranking-row {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeSlide 0.6s ease forwards;
+}
+
+@keyframes fadeSlide {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Rank badges */
+.rank-badge {
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 14px;
+    color: white;
+}
+
+.gold { background: linear-gradient(45deg,#facc15,#f59e0b); }
+.silver { background: linear-gradient(45deg,#d1d5db,#9ca3af); }
+.bronze { background: linear-gradient(45deg,#fb923c,#ea580c); }
+.normal { background: linear-gradient(45deg,#6366f1,#8b5cf6); }
+
+/* Trend badges */
+.trend-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.high { background:#dcfce7; color:#166534; }
+.moderate { background:#fef9c3; color:#854d0e; }
+.low { background:#fee2e2; color:#991b1b; }
+
+/* Hover */
+.ranking-table tbody tr:hover {
+    background: rgba(99,102,241,0.05);
+    transition: 0.3s;
+}
+
+</style>
+
+<script>
+
+window.onload = function() {
+
+    fetch("/ranking-data")
+    .then(res => res.json())
+    .then(data => {
+
+        const table = document.querySelector("#rankingTable tbody");
+        table.innerHTML = "";
+
+        document.getElementById("rankingLoader").style.display = "none";
+        document.getElementById("rankingTable").style.display = "table";
+
+        data.forEach((item, index) => {
+
+            let rankClass = "normal";
+            let rankIcon = index + 1;
+
+            if(index === 0) { rankClass = "gold"; rankIcon = "🥇"; }
+            else if(index === 1) { rankClass = "silver"; rankIcon = "🥈"; }
+            else if(index === 2) { rankClass = "bronze"; rankIcon = "🥉"; }
+
+            let trendClass = "moderate";
+            if(item.trend === "High Growth") trendClass = "high";
+            if(item.trend === "Low / Declining") trendClass = "low";
+
+            const row = document.createElement("tr");
+            row.classList.add("ranking-row");
+            row.style.animationDelay = `${index * 0.1}s`;
+
+            row.innerHTML = `
+                <td>
+                    <span class="rank-badge ${rankClass}">
+                        ${rankIcon}
+                    </span>
+                </td>
+                <td class="fw-semibold">
+                    ${item.market.toUpperCase()}
+                </td>
+                <td class="fw-bold text-primary">
+                    ${item.cagr}
+                </td>
+                <td>
+                    <span class="trend-badge ${trendClass}">
+                        ${item.trend}
+                    </span>
+                </td>
+            `;
+
+            table.appendChild(row);
+        });
+
+    });
+
+};
+
+</script>
+
+{% endblock %}

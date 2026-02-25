@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+
+/* ====== Background 3D Gradient ====== */
+.dashboard-bg {
+    position: relative;
+    padding: 40px;
+    border-radius: 30px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #eef2ff, #e0f2fe, #f0f9ff);
+}
+
+/* Floating Gradient Blobs */
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.6;
+    animation: float 12s infinite ease-in-out alternate;
+}
+
+.blob1 {
+    width: 350px;
+    height: 350px;
+    background: #6366f1;
+    top: -100px;
+    left: -100px;
+}
+
+.blob2 {
+    width: 300px;
+    height: 300px;
+    background: #06b6d4;
+    bottom: -100px;
+    right: -80px;
+}
+
+.blob3 {
+    width: 250px;
+    height: 250px;
+    background: #8b5cf6;
+    top: 40%;
+    left: 60%;
+}
+
+@keyframes float {
+    from { transform: translateY(0px); }
+    to { transform: translateY(-40px); }
+}
+
+/* ===== Title ===== */
+.dashboard-title {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 40px;
+    color: #1e293b;
+}
+
+/* ===== KPI Cards ===== */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+}
+
+.kpi-card {
+    position: relative;
+    padding: 30px;
+    border-radius: 20px;
+    background: linear-gradient(145deg, #ffffff, #f0f4ff);
+    box-shadow: 0 20px 40px rgba(99,102,241,0.15);
+    transition: all 0.4s ease;
+    overflow: hidden;
+}
+
+.kpi-card::before {
+    content: "";
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    top: -40%;
+    left: -40%;
+    background: radial-gradient(circle, rgba(99,102,241,0.15), transparent 70%);
+    transition: 0.4s;
+}
+
+.kpi-card:hover {
+    transform: translateY(-10px) scale(1.03);
+    box-shadow: 0 25px 60px rgba(99,102,241,0.3);
+}
+
+.kpi-card:hover::before {
+    transform: rotate(20deg);
+}
+
+.kpi-title {
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-top: 8px;
+    color: #1e293b;
+}
+
+/* ===== AI Illustration Card ===== */
+.ai-card {
+    margin-top: 50px;
+    border-radius: 30px;
+    padding: 40px;
+    background: linear-gradient(135deg, #6366f1, #06b6d4);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 30px 70px rgba(99,102,241,0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.ai-card::after {
+    content: "";
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255,255,255,0.2), transparent 70%);
+    top: -200px;
+    right: -150px;
+    border-radius: 50%;
+}
+
+.ai-text h3 {
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.ai-text p {
+    opacity: 0.9;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 992px) {
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+</style>
+
+<div class="dashboard-bg">
+
+    <!-- Floating Blobs -->
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+    <div class="blob blob3"></div>
+
+    <div class="dashboard-title">
+        Market Intelligence Dashboard
+    </div>
+
+    <!-- KPI Section -->
+    <div class="kpi-grid">
+
+        <div class="kpi-card">
+            <div class="kpi-title">Total Markets</div>
+            <div class="kpi-value">6</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-title">Best Performing Sector</div>
+            <div class="kpi-value">Renewable</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-title">Active Prediction Model</div>
+            <div class="kpi-value">Auto ML</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-title">System Status</div>
+            <div class="kpi-value" style="color:#16a34a;">Active</div>
+        </div>
+
+    </div>
+
+    <!-- AI Highlight Section -->
+    <div class="ai-card">
+        <div class="ai-text">
+            <h3>AI Driven Market Forecasting</h3>
+            <p>
+                Advanced ML models analyze GDP, EV, Fuel & Inflation trends 
+                to generate high-accuracy future predictions.
+            </p>
+        </div>
+        <img src="https://cdn-icons-png.flaticon.com/512/4149/4149640.png"
+             width="120"
+             style="filter: drop-shadow(0px 20px 20px rgba(0,0,0,0.3));">
+    </div>
+
+</div>
+
+{% endblock %}

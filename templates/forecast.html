@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4 fw-bold">📈 Market Forecast</h2>
+
+<!-- Selection Card -->
+<div class="card-modern mb-5">
+    <div class="row g-4 align-items-end">
+
+        <div class="col-md-5">
+            <label class="fw-semibold mb-2">Select Market</label>
+            <select id="marketSelect" class="form-select form-select-lg custom-select">
+                <option value="gdp">GDP</option>
+                <option value="renewable">Renewable</option>
+                <option value="inflation">Inflation</option>
+                <option value="fuel">Fuel</option>
+                <option value="ev">EV</option>
+                <option value="automobile">Automobile</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="fw-semibold mb-2">Target Year</label>
+            <input type="number"
+                   id="targetYear"
+                   class="form-control form-control-lg"
+                   value="2035">
+        </div>
+
+        <div class="col-md-4">
+            <button onclick="loadForecast()" class="btn-premium w-100">
+                Analyze Market
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- KPI Section -->
+<div class="row mb-5" id="kpiSection" style="display:none;">
+
+    <div class="col-md-4">
+        <div class="card-modern text-center">
+            <div class="text-muted">Model Used</div>
+            <div id="modelUsed" class="fs-4 fw-bold mt-2">-</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card-modern text-center">
+            <div class="text-muted">Accuracy (R²)</div>
+            <div id="accuracy" class="fs-4 fw-bold mt-2">-</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card-modern text-center">
+            <div class="text-muted">CAGR (%)</div>
+            <div id="cagr" class="fs-4 fw-bold mt-2">-</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Chart Card -->
+<div class="card-modern position-relative">
+    <div id="loader" class="text-center py-5" style="display:none;">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-3 text-muted">Analyzing market trends...</p>
+    </div>
+    <canvas id="marketChart"></canvas>
+</div>
+
+<style>
+.custom-select {
+    border-radius: 16px;
+    padding: 14px;
+    border: 1px solid #e5e7eb;
+    transition: 0.3s;
+}
+
+.custom-select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+}
+</style>
+
+<script>
+
+let chart = null;
+
+function animateValue(id, value) {
+    let start = 0;
+    let duration = 800;
+    let stepTime = 20;
+    let steps = duration / stepTime;
+    let increment = value / steps;
+    let obj = document.getElementById(id);
+
+    let counter = setInterval(() => {
+        start += increment;
+        if (start >= value) {
+            obj.innerText = value;
+            clearInterval(counter);
+        } else {
+            obj.innerText = start.toFixed(2);
+        }
+    }, stepTime);
+}
+
+function loadForecast() {
+
+    const market = document.getElementById("marketSelect").value;
+    const targetYear = document.getElementById("targetYear").value;
+
+    document.getElementById("loader").style.display = "block";
+    document.getElementById("marketChart").style.display = "none";
+
+    fetch(`/forecast/${market}?target_year=${targetYear}`)
+    .then(res => res.json())
+    .then(data => {
+
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("marketChart").style.display = "block";
+        document.getElementById("kpiSection").style.display = "flex";
+
+        document.getElementById("modelUsed").innerText = data.selected_model;
+        animateValue("accuracy", data.model_accuracy_r2);
+        animateValue("cagr", data.cagr_percent);
+
+        if(chart) chart.destroy();
+
+        const ctx = document.getElementById("marketChart").getContext("2d");
+
+        const gradient = ctx.createLinearGradient(0,0,0,400);
+        gradient.addColorStop(0,"rgba(99,102,241,0.4)");
+        gradient.addColorStop(1,"rgba(99,102,241,0)");
+
+        chart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: [
+                    ...data.historical_data.map(d => d.year),
+                    ...data.forecast.map(d => d.year)
+                ],
+                datasets: [{
+                    label: market.toUpperCase(),
+                    data: [
+                        ...data.historical_data.map(d => d.value),
+                        ...data.forecast.map(d => d.predicted_value)
+                    ],
+                    borderColor: "#6366f1",
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                animation: {
+                    duration: 1200,
+                    easing: 'easeOutQuart'
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            font: { weight: "600" }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false }
+                    },
+                    y: {
+                        grid: {
+                            color: "rgba(0,0,0,0.05)"
+                        }
+                    }
+                }
+            }
+        });
+
+    });
+}
+
+</script>
+
+{% endblock %}

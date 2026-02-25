@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register | AI Market Intelligence</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Light premium gradient */
+    background: linear-gradient(135deg,#e0f2fe,#c7d2fe,#f0abfc);
+}
+
+/* Soft rotating aurora */
+body::before {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg,
+        #6366f1,
+        #06b6d4,
+        #8b5cf6,
+        #f472b6,
+        #6366f1);
+    animation: rotateBg 25s linear infinite;
+    opacity: 0.15;
+}
+
+@keyframes rotateBg {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Floating wave */
+.wave {
+    position: absolute;
+    bottom: 0;
+    width: 200%;
+    height: 180px;
+    background: linear-gradient(to top, rgba(99,102,241,0.3), transparent);
+    clip-path: polygon(0% 70%,10% 60%,20% 65%,30% 50%,40% 55%,50% 40%,60% 45%,70% 30%,80% 35%,90% 20%,100% 25%,100% 100%,0% 100%);
+    animation: waveMove 12s linear infinite;
+    opacity: 0.4;
+}
+
+@keyframes waveMove {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+/* Rotating holographic ring */
+.ring {
+    position: absolute;
+    width: 380px;
+    height: 380px;
+    border-radius: 50%;
+    border: 2px solid rgba(99,102,241,0.3);
+    box-shadow:
+        0 0 40px rgba(99,102,241,0.4),
+        inset 0 0 40px rgba(6,182,212,0.4);
+    animation: spin 20s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Glass Card */
+.register-card {
+    position: relative;
+    z-index: 5;
+    width: 420px;
+    padding: 45px;
+    border-radius: 25px;
+    background: rgba(255,255,255,0.65);
+    backdrop-filter: blur(25px);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+    color: #1e293b;
+    animation: fadeUp 1s ease;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 25px;
+    color: #475569;
+}
+
+/* Inputs */
+.form-control {
+    border-radius: 14px;
+    padding: 12px;
+    background: rgba(255,255,255,0.9);
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.3);
+}
+
+/* Button */
+.btn-premium {
+    background: linear-gradient(135deg,#6366f1,#06b6d4);
+    border: none;
+    border-radius: 14px;
+    font-weight: 600;
+    padding: 12px;
+    color: white;
+    transition: 0.3s;
+}
+
+.btn-premium:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 30px rgba(99,102,241,0.3);
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.login-link a {
+    color: #6366f1;
+    text-decoration: none;
+    font-weight: 600;
+}
+</style>
+</head>
+
+<body>
+
+<div class="ring"></div>
+<div class="wave"></div>
+
+<div class="register-card">
+
+    <div class="title">
+        Create Your Account 
+    </div>
+
+    <div class="subtitle">
+        Join AI Market Intelligence and start forecasting smarter.
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger text-center">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" action="/register">
+        <input class="form-control mb-3" name="username" placeholder="Username" required>
+        <input class="form-control mb-3" name="email" placeholder="Email" required>
+        <input class="form-control mb-3" type="password" name="password" placeholder="Password" required>
+
+        <button class="btn btn-premium w-100">
+            Create Account
+        </button>
+    </form>
+
+    <div class="login-link">
+        Already have an account?
+        <a href="/login">Login</a>
+    </div>
+
+</div>
+
+</body>
+</html>
