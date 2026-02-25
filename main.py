@@ -23,7 +23,7 @@ from models import User
 # ===============================
 
 app = FastAPI()
-app.add_middleware(SessionMiddleware, secret_key="supersecretkey")
+app.add_middleware(SessionMiddleware, secret_key=os.getenv("secretkey"))
 
 templates = Jinja2Templates(directory="templates")
 
