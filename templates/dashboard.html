@@ -6,7 +6,7 @@
 /* ====== Background 3D Gradient ====== */
 .dashboard-bg {
     position: relative;
-    padding: 40px;
+    padding: 40px;                         
     border-radius: 30px;
     overflow: hidden;
     background: linear-gradient(135deg, #eef2ff, #e0f2fe, #f0f9ff);
@@ -54,8 +54,19 @@
 .dashboard-title {
     font-size: 36px;
     font-weight: 700;
-    margin-bottom: 40px;
+    margin-bottom: 10px;
     color: #1e293b;
+}
+
+/* ===== User Info ===== */
+.user-bar {
+    margin-bottom: 25px;
+}
+
+.user-name {
+    font-size: 16px;
+    color: #475569;
+    font-weight: 600;
 }
 
 /* ===== KPI Cards ===== */
@@ -158,6 +169,13 @@
     <div class="blob blob1"></div>
     <div class="blob blob2"></div>
     <div class="blob blob3"></div>
+
+    <!-- USER NAME -->
+    <div class="user-bar">
+        <div class="user-name">
+            👋 Welcome, {{ user if user else "User" }}
+        </div>
+    </div>
 
     <div class="dashboard-title">
         Market Intelligence Dashboard

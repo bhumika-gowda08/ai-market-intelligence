@@ -3,7 +3,6 @@
 
 <h2 class="mb-4 fw-bold">📊 Market Comparison</h2>
 
-<!-- Selection Card -->
 <div class="card-modern mb-5">
 
     <div class="row g-4 align-items-end">
@@ -22,45 +21,19 @@
 
             <div class="multi-select-grid">
 
-                <div class="market-card">
-                    <input type="checkbox" value="gdp">
-                    <span>GDP</span>
-                </div>
-
-                <div class="market-card">
-                    <input type="checkbox" value="renewable">
-                    <span>Renewable</span>
-                </div>
-
-                <div class="market-card">
-                    <input type="checkbox" value="inflation">
-                    <span>Inflation</span>
-                </div>
-
-                <div class="market-card">
-                    <input type="checkbox" value="fuel">
-                    <span>Fuel</span>
-                </div>
-
-                <div class="market-card">
-                    <input type="checkbox" value="ev">
-                    <span>EV</span>
-                </div>
-
-                <div class="market-card">
-                    <input type="checkbox" value="automobile">
-                    <span>Automobile</span>
-                </div>
+                <div class="market-card"><input type="checkbox" value="gdp"><span>GDP</span></div>
+                <div class="market-card"><input type="checkbox" value="renewable"><span>Renewable</span></div>
+                <div class="market-card"><input type="checkbox" value="inflation"><span>Inflation</span></div>
+                <div class="market-card"><input type="checkbox" value="fuel"><span>Fuel</span></div>
+                <div class="market-card"><input type="checkbox" value="ev"><span>EV</span></div>
+                <div class="market-card"><input type="checkbox" value="automobile"><span>Automobile</span></div>
 
             </div>
         </div>
 
         <div class="col-md-3">
             <label class="fw-semibold mb-2">Target Year</label>
-            <input type="number"
-                   id="targetYear"
-                   class="form-control form-control-lg"
-                   value="2035">
+            <input type="number" id="targetYear" class="form-control form-control-lg" value="2035">
         </div>
 
         <div class="col-md-3">
@@ -73,25 +46,24 @@
 
 </div>
 
-<!-- Chart -->
 <div class="card-modern position-relative">
+
     <div id="loader" class="text-center py-5" style="display:none;">
         <div class="spinner-border text-primary"></div>
         <p class="mt-3 text-muted">Comparing markets...</p>
     </div>
+
     <canvas id="compareChart"></canvas>
+
 </div>
 
 <style>
-
-/* Grid Layout */
 .multi-select-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
 }
 
-/* Card Style */
 .market-card {
     background: rgba(255,255,255,0.9);
     border-radius: 14px;
@@ -120,14 +92,13 @@
     color: white;
     border: none;
 }
-
 </style>
 
 <script>
 
 let compareChart = null;
 
-/* Highlight card when checked */
+/* SELECT TOGGLE */
 document.querySelectorAll(".market-card").forEach(card => {
     card.addEventListener("click", () => {
         const checkbox = card.querySelector("input");
@@ -136,6 +107,7 @@ document.querySelectorAll(".market-card").forEach(card => {
     });
 });
 
+/* SELECT ALL */
 function selectAll() {
     document.querySelectorAll(".market-card").forEach(card => {
         card.querySelector("input").checked = true;
@@ -143,6 +115,7 @@ function selectAll() {
     });
 }
 
+/* CLEAR ALL */
 function clearAll() {
     document.querySelectorAll(".market-card").forEach(card => {
         card.querySelector("input").checked = false;
@@ -150,6 +123,7 @@ function clearAll() {
     });
 }
 
+/* MAIN FUNCTION */
 function compareMarkets() {
 
     const checked = Array.from(
@@ -175,25 +149,34 @@ function compareMarkets() {
 
         if(compareChart) compareChart.destroy();
 
-        const labels = Object.keys(data).map(m => m.toUpperCase());
-        const values = Object.values(data).map(d => d.cagr);
+        let labels = [];
+        let values = [];
+
+        data.forEach(item => {
+            labels.push(item.market.toUpperCase());
+            values.push(item.cagr);
+        });
+
+        // SORT
+        const combined = labels.map((l,i)=>({label:l,value:values[i]}))
+            .sort((a,b)=>b.value-a.value);
+
+        labels = combined.map(x=>x.label);
+        values = combined.map(x=>x.value);
 
         const ctx = document.getElementById("compareChart").getContext("2d");
 
-        const gradients = labels.map((_, i) => {
-            const gradient = ctx.createLinearGradient(0,0,0,400);
-            const colors = [
-                ["#6366f1","#8b5cf6"],
-                ["#22c55e","#16a34a"],
-                ["#ef4444","#dc2626"],
-                ["#f59e0b","#d97706"],
-                ["#06b6d4","#0891b2"],
-                ["#a855f7","#7c3aed"]
-            ];
-            gradient.addColorStop(0, colors[i % colors.length][0]);
-            gradient.addColorStop(1, colors[i % colors.length][1]);
-            return gradient;
-        });
+        // 🔥 AUTO COLORS MATCHING YOUR UI
+        const colorMap = {
+            GDP: "#6366f1",
+            RENEWABLE: "#22c55e",
+            INFLATION: "#ef4444",
+            FUEL: "#f59e0b",
+            EV: "#06b6d4",
+            AUTOMOBILE: "#8b5cf6"
+        };
+
+        const barColors = labels.map(label => colorMap[label] || "#6366f1");
 
         compareChart = new Chart(ctx, {
             type: "bar",
@@ -202,38 +185,25 @@ function compareMarkets() {
                 datasets: [{
                     label: "CAGR %",
                     data: values,
-                    backgroundColor: gradients,
-                    borderRadius: 14,
-                    barThickness: 60
+                    backgroundColor: barColors,   // ✅ HERE IS THE FIX
+                    borderRadius: 18,
+                    barThickness: 70
                 }]
             },
             options: {
                 responsive: true,
-                animation: {
-                    duration: 1200,
-                    easing: "easeOutQuart"
-                },
-                plugins: {
-                    legend: {
-                        labels: {
-                            font: { weight: "600" }
-                        }
-                    }
-                },
                 scales: {
-                    x: {
-                        grid: { display: false }
-                    },
-                    y: {
-                        grid: { display: false },
-                        beginAtZero: true
-                    }
+                    x: { grid: { display: false }},
+                    y: { beginAtZero: true }
                 }
             }
         });
 
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error loading data");
     });
-
 }
 
 </script>

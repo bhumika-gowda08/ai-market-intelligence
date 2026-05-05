@@ -90,6 +90,11 @@
 let chart = null;
 
 function animateValue(id, value) {
+    if (value === undefined || value === null || isNaN(value)) {
+        document.getElementById(id).innerText = "-";
+        return;
+    }
+
     let start = 0;
     let duration = 800;
     let stepTime = 20;
@@ -100,7 +105,7 @@ function animateValue(id, value) {
     let counter = setInterval(() => {
         start += increment;
         if (start >= value) {
-            obj.innerText = value;
+            obj.innerText = value.toFixed(2);
             clearInterval(counter);
         } else {
             obj.innerText = start.toFixed(2);
@@ -120,13 +125,25 @@ function loadForecast() {
     .then(res => res.json())
     .then(data => {
 
+        console.log("API RESPONSE:", data); // DEBUG
+
         document.getElementById("loader").style.display = "none";
         document.getElementById("marketChart").style.display = "block";
         document.getElementById("kpiSection").style.display = "flex";
 
-        document.getElementById("modelUsed").innerText = data.selected_model;
+        // ✅ SAFE KPI DISPLAY
+        document.getElementById("modelUsed").innerText = data.selected_model || "-";
         animateValue("accuracy", data.model_accuracy_r2);
         animateValue("cagr", data.cagr_percent);
+
+        // ✅ FIX: prevent crash if data missing
+        const historical = data.historical_data || [];
+        const forecast = data.forecast || [];
+
+        if (historical.length === 0 && forecast.length === 0) {
+            alert("No data received from API");
+            return;
+        }
 
         if(chart) chart.destroy();
 
@@ -140,14 +157,14 @@ function loadForecast() {
             type: "line",
             data: {
                 labels: [
-                    ...data.historical_data.map(d => d.year),
-                    ...data.forecast.map(d => d.year)
+                    ...historical.map(d => d.year),
+                    ...forecast.map(d => d.year)
                 ],
                 datasets: [{
                     label: market.toUpperCase(),
                     data: [
-                        ...data.historical_data.map(d => d.value),
-                        ...data.forecast.map(d => d.predicted_value)
+                        ...historical.map(d => d.value || d.predicted_value),
+                        ...forecast.map(d => d.predicted_value || d.value)
                     ],
                     borderColor: "#6366f1",
                     backgroundColor: gradient,
@@ -172,18 +189,16 @@ function loadForecast() {
                     }
                 },
                 scales: {
-                    x: {
-                        grid: { display: false }
-                    },
-                    y: {
-                        grid: {
-                            color: "rgba(0,0,0,0.05)"
-                        }
-                    }
+                    x: { grid: { display: false }},
+                    y: { grid: { color: "rgba(0,0,0,0.05)" }}
                 }
             }
         });
 
+    })
+    .catch(err => {
+        console.error("ERROR:", err);
+        alert("Something went wrong. Check backend.");
     });
 }
 

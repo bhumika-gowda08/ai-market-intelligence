@@ -108,11 +108,16 @@ window.onload = function() {
     .then(res => res.json())
     .then(data => {
 
+        console.log("Ranking API:", data);
+
         const table = document.querySelector("#rankingTable tbody");
         table.innerHTML = "";
 
         document.getElementById("rankingLoader").style.display = "none";
         document.getElementById("rankingTable").style.display = "table";
+
+        // ✅ sort by CAGR descending
+        data.sort((a, b) => b.cagr - a.cagr);
 
         data.forEach((item, index) => {
 
@@ -124,8 +129,8 @@ window.onload = function() {
             else if(index === 2) { rankClass = "bronze"; rankIcon = "🥉"; }
 
             let trendClass = "moderate";
-            if(item.trend === "High Growth") trendClass = "high";
-            if(item.trend === "Low / Declining") trendClass = "low";
+            if(item.cagr > 10) trendClass = "high";
+            else if(item.cagr < 2) trendClass = "low";
 
             const row = document.createElement("tr");
             row.classList.add("ranking-row");
@@ -138,14 +143,16 @@ window.onload = function() {
                     </span>
                 </td>
                 <td class="fw-semibold">
-                    ${item.market.toUpperCase()}
+                    ${(item.sector || "N/A").toUpperCase()}
                 </td>
                 <td class="fw-bold text-primary">
-                    ${item.cagr}
+                    ${item.cagr.toFixed(2)}
                 </td>
                 <td>
                     <span class="trend-badge ${trendClass}">
-                        ${item.trend}
+                        ${trendClass === "high" ? "High Growth" :
+                          trendClass === "low" ? "Low / Declining" :
+                          "Moderate Growth"}
                     </span>
                 </td>
             `;
@@ -153,6 +160,10 @@ window.onload = function() {
             table.appendChild(row);
         });
 
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Failed to load ranking data");
     });
 
 };
